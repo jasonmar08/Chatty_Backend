@@ -25,7 +25,6 @@ db.on('connected', () => {
     })
 })
 
-// Listen for the 'error' event emitted by the MongoDB driver
 db.on('error', (err) => {
   console.error(`MongoDB connection error: ${err}`)
   process.exit(1)
