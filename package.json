@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node -m server.js",
     "dev": "NODE_ENV=development nodemon server.js",
-    "prod": "NODE_ENV=production node server.js"
+    "prod": "NODE_ENV=production node -m server.js"
   },
   "repository": {
     "type": "git",
@@ -29,5 +29,6 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
-  }
+  },
+  "type": "module"
 }
