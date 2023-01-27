@@ -16,7 +16,7 @@ const user = new Schema(
       type: String,
       match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$|^\d{10}$/
     },
-    profilePicture: { type: String },
+    profilePhoto: { type: String },
     verified: { type: Boolean, default: false }
   },
   { timestamps: true }
