@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const contactDirectory = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    userId: { type: mongoose.Types.ObjectId, ref: 'User' },
     contact: {
       firstName: { type: String, required: true },
       lastName: { type: String, default: '' },
