@@ -30,3 +30,40 @@ export const getOneUserById = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+export const updateUserInfo = async (req, res) => {
+  try {
+    const { userId } = req.params
+    console.log('User req.body:', req.body)
+    await User.findByIdAndUpdate(userId, req.body, {
+      new: true
+    }).select('-passwordDigest, -verified')
+    res
+      .status(200)
+      .json({ message: `User with ID ${userId} successfully updated.` })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const deletedUser = await User.findByIdAndDelete(userId)
+    res.status(200).json(
+      deletedUser
+        ? {
+            deletionStatus: true,
+            message: `User with ID ${userId} successfully deleted from database.`
+          }
+        : {
+            deletionStatus: false,
+            message: `User with ID ${userId} not found.`
+          }
+    )
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ deletionStatus: false, error: error.message })
+  }
+}

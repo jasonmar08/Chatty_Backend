@@ -24,7 +24,7 @@ export const register = async (req, res) => {
     })
   } catch (error) {
     console.error(error.message)
-    res.status(400).json({ error: error.message })
+    res.status(500).json({ error: error.message })
   }
 }
 
@@ -46,7 +46,7 @@ export const login = async (req, res) => {
     res.status(401).send({ status: 'Error', message: 'Unauthorized' })
   } catch (error) {
     console.error(error.message)
-    res.status(400).json({ error: error.message })
+    res.status(500).json({ error: error.message })
   }
 }
 
@@ -69,8 +69,8 @@ export const updatePassword = async (req, res) => {
       .status(401)
       .json({ status: 'Error', message: 'Old password is incorrect.' })
   } catch (error) {
-    console.log(error.message)
-    res.status(400).json({ error: error.message })
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
   }
 }
 
