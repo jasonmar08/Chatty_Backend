@@ -6,6 +6,7 @@ import {
   register,
   updatePassword
 } from '../controllers/authUser.js'
+import { getAllUsers, getOneUserById } from '../controllers/user.js'
 const router = Router()
 
 // Auth
@@ -18,5 +19,9 @@ router.patch(
   updatePassword
 )
 router.get('/session', stripToken, verifyToken, checkSession)
+
+// Standard CRUD
+router.get('/users', stripToken, verifyToken, getAllUsers)
+router.get('/users/:userId', stripToken, verifyToken, getOneUserById)
 
 export default router
