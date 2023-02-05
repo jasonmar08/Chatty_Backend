@@ -67,3 +67,105 @@ export const createNewContact = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+export const getOneContact = async (req, res) => {
+  try {
+    const { userId, contactId } = req.params
+    const contact = await ContactDirectory.findOne(
+      { userId, 'contacts._id': contactId }, // query filter
+      { 'contacts.$': 1 } // returns only specified contact
+    )
+
+    if (!contact) {
+      return res
+        .status(404)
+        .json({ message: `Contact with ID ${contactId} not found.` })
+    }
+
+    res.status(200).json({
+      contact: contact.contacts[0],
+      message: `Contact with ID ${contactId} successfully found.`
+    })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const updateContact = async (req, res) => {
+  try {
+    const { userId, contactId } = req.params
+    const updatedContactValues = { ...req.body }
+    const updatedDirectory = await ContactDirectory.findByIdAndUpdate(
+      { userId, 'contacts._id': contactId }, // query filter
+      { $set: { 'contacts.$': updatedContactValues } }, // update expression
+      { new: true } // returns updated doc, not original doc
+    )
+
+    if (!updatedDirectory) {
+      return res
+        .status(404)
+        .json({ message: `Contact with ID ${contactId} not found.` })
+    }
+
+    const updatedContact = updatedDirectory.contacts.find(
+      (contact) => contact._id.toString() === contactId
+    )
+
+    return res.status(200).json({
+      updatedContact,
+      message: `Contact with ID ${contactId} successfully updated.`
+    })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const deleteOneContact = async (req, res) => {
+  try {
+    const { userId, contactId } = req.params
+    const deletedContact = await ContactDirectory.findOneAndUpdate(
+      { userId },
+      { $pull: { contacts: { _id: contactId } } },
+      { new: true }
+    )
+
+    if (!deletedContact) {
+      return res
+        .status(404)
+        .json({ message: `Contact with ID ${contactId} not found.` })
+    }
+    res
+      .status(200)
+      .json({ message: `Contact with ID ${contactId} successfully deleted.` })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({
+      error: error.message,
+      message: `An error occurred while deleting contact with ID ${contactId}.`
+    })
+  }
+}
+
+export const getAllFavoriteContacts = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const favoriteContacts = await ContactDirectory.find({
+      userId,
+      'contacts.isFavorite': true
+    })
+
+    favoriteContacts.length === 0
+      ? res.status(404).json({
+          message: `User with ID ${userId} has no favorite contacts.`
+        })
+      : res.status(200).json({
+          favoriteContacts,
+          message: `Successfully retrieved all favorited contacts for user with ID ${userId}.`
+        })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
