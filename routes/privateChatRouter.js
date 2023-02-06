@@ -8,16 +8,21 @@ import {
 import { stripToken, verifyToken } from '../middleware/jwtAuth.js'
 const router = Router()
 
-router.post('/:userId/messages', stripToken, verifyToken, createMessage)
-router.get('/:userId/messages', stripToken, verifyToken, getAllMessageThreads)
+router.post('/:userId/privateChats', stripToken, verifyToken, createMessage)
 router.get(
-  '/:userId/messages/:privateChatId',
+  '/:userId/privateChats',
+  stripToken,
+  verifyToken,
+  getAllMessageThreads
+)
+router.get(
+  '/:userId/privateChats/:privateChatId',
   stripToken,
   verifyToken,
   getAllMessages
 )
 router.delete(
-  '/:userId/messages/:privateChatId',
+  '/:userId/privateChats/:privateChatId',
   stripToken,
   verifyToken,
   deleteMessageThread
