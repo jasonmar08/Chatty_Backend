@@ -80,9 +80,9 @@ export const getAllMessages = async (req, res) => {
       select: 'text timestamp status'
     })
 
-    messageThread === 0
+    messageThread.length === 0
       ? res.status(404).json({
-          message: `No messages in message thread ${privateChatId} for user with ID ${userId}.`
+          message: `Private messages thread with ID ${privateChatId} not found.`
         })
       : res.status(200).json({
           messageThread,
@@ -102,16 +102,12 @@ export const deleteMessageThread = async (req, res) => {
     )
 
     !deletedMessageThread
-      ? res
-          .status(404)
-          .json({
-            message: `Could not find message thread with ID ${privateChatId}.`
-          })
-      : res
-          .status(200)
-          .json({
-            message: `Successfully deleted private message thread with ID ${privateChatId}.`
-          })
+      ? res.status(404).json({
+          message: `Could not find message thread with ID ${privateChatId}.`
+        })
+      : res.status(200).json({
+          message: `Successfully deleted private message thread with ID ${privateChatId}.`
+        })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
