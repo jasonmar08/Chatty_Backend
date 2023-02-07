@@ -107,31 +107,44 @@ export const updateGroupChatInfo = async (req, res) => {
 export const deleteGroupChatThread = async (req, res) => {
   try {
     const { userId, groupChatId } = req.params
-    const groupChat = await GroupChat.findOne({ _id: groupChatId }).populate(
-      'participants'
-    )
+    const groupChat = await GroupChat.findOne({ _id: groupChatId })
+    if (!groupChat)
+      return res
+        .status(404)
+        .json({
+          message: `Could not find group chat thread with ID ${groupChatId}.`
+        })
 
     const user = groupChat.participants.find(
       (user) => user._id.toString() === userId
     )
+    if (!user)
+      return res
+        .status(403)
+        .json({ message: `User is not a participant of the group chat.` })
 
-    if (user && user._id === groupChat.creator) {
-      const deletedGroupChatThread = await GroupChat.findByIdAndDelete(
-        groupChatId
-      )
-
-      if (!deletedGroupChatThread) {
-        return res.status(404).json({
-          message: `Could not find group chat thread with ID ${groupChatId}.`
+    if (user._id !== groupChat.creator)
+      return res
+        .status(403)
+        .json({
+          message: `User is not the creator of the group chat and cannot delete the thread.`
         })
-      }
-      return res.status(200).json({
+
+    const deletedGroupChatThread = await GroupChat.findByIdAndDelete(
+      groupChatId
+    )
+    if (!deletedGroupChatThread)
+      return res
+        .status(404)
+        .json({
+          message: `Could not delete group chat thread with ID ${groupChatId}.`
+        })
+
+    return res
+      .status(200)
+      .json({
         message: `Successfully deleted group chat thread with ID ${groupChatId}.`
       })
-    }
-    return res.status(403).json({
-      message: `User is not the creator of the group chat and cannot delete the thread.`
-    })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
@@ -152,11 +165,9 @@ export const leaveGroupChat = async (req, res) => {
         .status(404)
         .json({ message: `Group chat with ID ${groupChatId} not found.` })
     }
-    res
-      .status(200)
-      .json({
-        message: `User with ID ${userId} successfully left the group chat ${groupChatId}.`
-      })
+    res.status(200).json({
+      message: `User with ID ${userId} successfully left the group chat ${groupChatId}.`
+    })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
