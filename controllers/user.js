@@ -1,4 +1,6 @@
 import User from '../models/user.js'
+import PrivateChat from '../models/privateChat.js'
+import GroupChat from '../models/groupChat.js'
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -66,4 +68,32 @@ export const deleteUser = async (req, res) => {
     console.error(error.message)
     res.status(500).json({ deletionStatus: false, error: error.message })
   }
+}
+
+export const getAllChatThreads = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const privateThreads = await PrivateChat.find({
+      participants: { $elemMatch: { $eq: userId } }
+    })
+    const groupThreads = await GroupChat.find({
+      participants: { $elemMatch: { $eq: userId } }
+    })
+
+    const allThreads = privateThreads.concat(groupThreads)
+    await filterChatThreads(allThreads)
+    res.status(200).json({
+      allThreads,
+      message: `Successfully retrieved all chat threads for user with ID ${userId}.`
+    })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const filterChatThreads = (threads) => {
+  threads.sort((a, b) => {
+    return new Date(b.lastActive) - new Date(a.lastActive)
+  })
 }
