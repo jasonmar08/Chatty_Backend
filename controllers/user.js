@@ -92,7 +92,7 @@ export const getAllChatThreads = async (req, res) => {
   }
 }
 
-export const filterChatThreads = (threads) => {
+export const filterChatThreads = async (threads) => {
   threads.sort((a, b) => {
     return new Date(b.lastActive) - new Date(a.lastActive)
   })
