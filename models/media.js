@@ -12,16 +12,6 @@ const media = new Schema(
       type: mongoose.Types.ObjectId,
       ref: 'GroupChat'
     },
-    validate: {
-      validator: (mediaMessage) => {
-        return (
-          (mediaMessage.privateChatId && !mediaMessage.groupChatId) ||
-          (mediaMessage.groupChatId && !mediaMessage.privateChatId)
-        )
-      },
-      message:
-        'Media message must be associated with either a private chat or a group chat, but not both.'
-    },
     fileName: { type: String },
     fileType: {
       type: String,
@@ -31,7 +21,21 @@ const media = new Schema(
     fileSize: { type: String },
     fileUrl: { type: String, required: true }
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    validate: [
+      {
+        validator: (mediaMessage) => {
+          return (
+            (mediaMessage.privateChatId && !mediaMessage.groupChatId) ||
+            (mediaMessage.groupChatId && !mediaMessage.privateChatId)
+          )
+        },
+        message:
+          'Media message must be associated with either a private chat or a group chat, but not both.'
+      }
+    ]
+  }
 )
 
 export default mongoose.model('Media', media)
