@@ -32,6 +32,7 @@ const privateChat = new Schema(
         ]
       }
     ],
+    media: [{ type: mongoose.Types.ObjectId, ref: 'Media' }],
     lastActive: { type: Date, default: Date.now }
   },
   { timestamps: true }

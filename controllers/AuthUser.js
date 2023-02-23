@@ -41,7 +41,11 @@ export const login = async (req, res) => {
         profilePhoto: user.profilePhoto
       }
       let token = createToken(payload)
-      return res.status(201).json({ user: payload, token })
+      return res.status(201).json({
+        message: `Successfully logged in with user email ${email}.`,
+        user: payload,
+        token
+      })
     }
     res.status(401).send({ status: 'Error', message: 'Unauthorized' })
   } catch (error) {

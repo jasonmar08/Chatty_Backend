@@ -7,6 +7,7 @@ import {
   getOneUserById,
   updateUserInfo
 } from '../controllers/user.js'
+import { getMediaByUserId } from '../controllers/media.js'
 const router = Router()
 
 // Standard CRUD
@@ -22,5 +23,6 @@ router.get(
   verifyToken,
   getAllChatThreads
 )
+router.get('/users/:userId/media', stripToken, verifyToken, getMediaByUserId)
 
 export default router

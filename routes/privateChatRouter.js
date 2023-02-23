@@ -1,5 +1,10 @@
 import { Router } from 'express'
 import {
+  createMediaMessage,
+  getChatMediaByFileType,
+  getMediaByChatId
+} from '../controllers/media.js'
+import {
   createMessage,
   deleteMessageThread,
   getAllMessages,
@@ -26,6 +31,26 @@ router.delete(
   stripToken,
   verifyToken,
   deleteMessageThread
+)
+
+// Media Messages
+router.post(
+  '/:userId/privateChats/:privateChatId/media',
+  stripToken,
+  verifyToken,
+  createMediaMessage
+)
+router.get(
+  '/privateChats/:privateChatId/media',
+  stripToken,
+  verifyToken,
+  getMediaByChatId
+)
+router.get(
+  '/privateChats/:privateChatId/media/:fileType',
+  stripToken,
+  verifyToken,
+  getChatMediaByFileType
 )
 
 export default router

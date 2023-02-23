@@ -7,6 +7,11 @@ import {
   leaveGroupChat,
   updateGroupChatInfo
 } from '../controllers/groupChat.js'
+import {
+  createMediaMessage,
+  getChatMediaByFileType,
+  getMediaByChatId
+} from '../controllers/media.js'
 import { stripToken, verifyToken } from '../middleware/jwtAuth.js'
 const router = Router()
 
@@ -36,5 +41,25 @@ router.delete(
   deleteGroupChatThread
 )
 router.put('/:userId/:groupChatId', stripToken, verifyToken, leaveGroupChat)
+
+// Media Messages
+router.post(
+  '/:userId/groupChats/:groupChatId/media',
+  stripToken,
+  verifyToken,
+  createMediaMessage
+)
+router.get(
+  '/groupChats/:groupChatId/media',
+  stripToken,
+  verifyToken,
+  getMediaByChatId
+)
+router.get(
+  '/groupChats/:groupChatId/media/:fileType',
+  stripToken,
+  verifyToken,
+  getChatMediaByFileType
+)
 
 export default router
