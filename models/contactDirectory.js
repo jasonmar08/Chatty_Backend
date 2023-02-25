@@ -12,7 +12,7 @@ const contactDirectory = new Schema(
         email: {
           type: String,
           match: /.+\@.+\..+/,
-          unique: true,
+          unique: false,
           index: true,
           required: true
         },
