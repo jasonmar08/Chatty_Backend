@@ -42,11 +42,9 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() })
 
     if (!user) {
-      return res
-        .status(299)
-        .json({
-          message: `A Chatty account with email ${email} does not exist. Please try logging in with a different email or registering for a new accoutn.`
-        })
+      return res.status(299).json({
+        message: `A Chatty account with email ${email} does not exist. Please try logging in with a different email or registering for a new accoutn.`
+      })
     }
 
     if (user && !(await comparePassword(user.passwordDigest, password))) {
@@ -85,7 +83,7 @@ export const updatePassword = async (req, res) => {
       (await comparePassword(user.passwordDigest, req.body.oldPassword))
     ) {
       let passwordDigest = await hashPassword(req.body.newPassword)
-      await user.findByIdAndUpdate(userId, { passwordDigest }, { new: true })
+      await User.findByIdAndUpdate(userId, { passwordDigest }, { new: true })
       return res.status(201).json({
         status: 'Success',
         message: 'Your password has been successfully updated.'
