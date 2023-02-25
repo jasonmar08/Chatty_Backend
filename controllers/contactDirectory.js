@@ -1,12 +1,30 @@
 import ContactDirectory from '../models/contactDirectory.js'
 import User from '../models/user.js'
 
+export const getAllContacts = async (req, res) => {
+  try {
+    const allContacts = await ContactDirectory.find({})
+
+    allContacts.length === 0
+      ? res
+          .status(404)
+          .json({ message: 'No stored contacts found in the entire database.' })
+      : res.status(200).json({
+          allContacts,
+          message: 'Successfully retrieved all contacts from database.'
+        })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
 export const getAllContactsByUserId = async (req, res) => {
   try {
     const { userId } = req.params
     const userContacts = await ContactDirectory.find({ userId }).populate({
       path: 'contacts.contactId',
-      select: '-passwordDigest -verified'
+      select: '_id email'
     })
     userContacts.length === 0
       ? res
@@ -59,6 +77,7 @@ export const createNewContact = async (req, res) => {
       email: email,
       phoneNumber
     })
+    await existingContactDirectory.save()
     res.status(201).json({
       message: `Contact added successfully! ${firstName} ${lastName} was added to your contacts list.`
     })

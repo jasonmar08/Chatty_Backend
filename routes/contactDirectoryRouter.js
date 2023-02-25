@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   createNewContact,
   deleteOneContact,
+  getAllContacts,
   getAllContactsByUserId,
   getAllFavoriteContacts,
   getOneContact,
@@ -10,6 +11,7 @@ import {
 import { stripToken, verifyToken } from '../middleware/jwtAuth.js'
 const router = Router()
 
+router.get('/contacts', stripToken, verifyToken, getAllContacts)
 router.get('/:userId/contacts', stripToken, verifyToken, getAllContactsByUserId)
 router.post('/:userId/contacts', stripToken, verifyToken, createNewContact)
 router.get(
