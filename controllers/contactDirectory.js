@@ -3,7 +3,10 @@ import User from '../models/user.js'
 
 export const getAllContacts = async (req, res) => {
   try {
-    const allContacts = await ContactDirectory.find({})
+    const allContacts = await ContactDirectory.find({}).populate({
+      path: 'userId',
+      select: 'email'
+    })
 
     allContacts.length === 0
       ? res
@@ -22,10 +25,9 @@ export const getAllContacts = async (req, res) => {
 export const getAllContactsByUserId = async (req, res) => {
   try {
     const { userId } = req.params
-    const userContacts = await ContactDirectory.find({ userId }).populate({
-      path: 'contacts.contactId',
-      select: '_id email'
-    })
+    const userContacts = await ContactDirectory.find({ userId })
+      .populate({ path: 'userId', select: 'email' })
+      .populate({ path: 'contacts.contactId', select: 'email' })
     userContacts.length === 0
       ? res
           .status(404)
