@@ -10,6 +10,14 @@ export const register = async (req, res) => {
     let { firstName, lastName, email, password, phoneNumber, profilePhoto } =
       req.body
     let passwordDigest = await hashPassword(password)
+    const existingUser = await User.find({ email })
+
+    if (existingUser) {
+      return res.status(299).json({
+        message: `A Chatty user with the email ${email} already exists. Please register with a different email or login to your existing account.`
+      })
+    }
+
     const newUser = new User({
       firstName,
       lastName,
@@ -32,6 +40,20 @@ export const login = async (req, res) => {
   try {
     const { email = email.toLowerCase(), password } = req.body
     const user = await User.findOne({ email: email.toLowerCase() })
+
+    if (!user) {
+      return res
+        .status(299)
+        .json({
+          message: `A Chatty account with email ${email} does not exist. Please try logging in with a different email or registering for a new accoutn.`
+        })
+    }
+
+    if (user && !(await comparePassword(user.passwordDigest, password))) {
+      return res
+        .status(299)
+        .json({ message: `Incorrect password. Please try again.` })
+    }
 
     if (user && (await comparePassword(user.passwordDigest, password))) {
       let payload = {
