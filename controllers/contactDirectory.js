@@ -116,10 +116,19 @@ export const getOneContact = async (req, res) => {
 export const updateContact = async (req, res) => {
   try {
     const { userId, contactId } = req.params
-    const updatedContactValues = { ...req.body }
-    const updatedDirectory = await ContactDirectory.findByIdAndUpdate(
+    const { firstName, lastName, email, phoneNumber, isFavorite } = req.body
+
+    const updatedDirectory = await ContactDirectory.findOneAndUpdate(
       { userId, 'contacts._id': contactId }, // query filter
-      { $set: { 'contacts.$': updatedContactValues } }, // update expression
+      {
+        $set: {
+          'contacts.$.firstName': firstName,
+          'contacts.$.lastName': lastName,
+          'contacts.$.email': email,
+          'contacts.$.phoneNumber': phoneNumber,
+          'contacts.$.isFavorite': isFavorite
+        }
+      }, // update expression
       { new: true } // returns updated doc, not original doc
     )
 
