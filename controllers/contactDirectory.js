@@ -181,10 +181,20 @@ export const deleteOneContact = async (req, res) => {
 export const getAllFavoriteContacts = async (req, res) => {
   try {
     const { userId } = req.params
-    const favoriteContacts = await ContactDirectory.find({
-      userId,
-      'contacts.isFavorite': true
+    const userContacts = await ContactDirectory.find({
+      userId
     })
+
+    if (userContacts.length === 0) {
+      return res
+        .status(404)
+        .json({ message: `User with ID ${userId} has no contacts.` })
+    }
+
+    const contactsArr = userContacts[0].contacts
+    const favoriteContacts = contactsArr.filter(
+      (contact) => contact.isFavorite === true
+    )
 
     favoriteContacts.length === 0
       ? res.status(404).json({

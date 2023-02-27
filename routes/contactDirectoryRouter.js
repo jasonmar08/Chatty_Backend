@@ -33,7 +33,7 @@ router.delete(
   deleteOneContact
 )
 router.get(
-  '/:userId/contacts/favorites',
+  '/:userId/favorite-contacts',
   stripToken,
   verifyToken,
   getAllFavoriteContacts
