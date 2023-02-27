@@ -82,10 +82,17 @@ export const getAllChatThreads = async (req, res) => {
 
     const allThreads = privateThreads.concat(groupThreads)
     await filterChatThreads(allThreads)
-    res.status(200).json({
-      allThreads,
-      message: `Successfully retrieved all chat threads for user with ID ${userId}.`
-    })
+
+    allThreads.length === 0
+      ? res
+          .status(404)
+          .json({
+            message: `No conversation threads found for user with ID ${userId}.`
+          })
+      : res.status(200).json({
+          allThreads,
+          message: `Successfully retrieved all chat threads for user with ID ${userId}.`
+        })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
