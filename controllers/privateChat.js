@@ -61,6 +61,16 @@ export const getAllMessageThreads = async (req, res) => {
     const messageThreads = await PrivateChat.find({
       participants: { $elemMatch: { $eq: userId } }
     })
+      .populate({ path: 'participants', select: 'email' })
+      .populate({
+        path: 'messages',
+        populate: { path: 'sender', select: 'email' }
+      })
+      .populate({
+        path: 'media',
+        populate: { path: 'sender', select: 'email' },
+        select: 'fileName fileType fileUrl status'
+      })
 
     if (messageThreads.length === 0) {
       return res.status(404).json({
@@ -82,10 +92,16 @@ export const getAllMessages = async (req, res) => {
     const { userId, privateChatId } = req.params
     const messageThread = await PrivateChat.find({
       _id: privateChatId
-    }).select(
-      'messages.text messages.sender messages.timestamp messages.status'
-    )
-
+    })
+      .select(
+        'messages.text messages.sender messages.timestamp messages.status'
+      )
+      .populate({ path: 'messages.sender', select: 'email' })
+      .populate({
+        path: 'media',
+        populate: { path: 'sender', select: 'email' },
+        select: 'fileName fileType fileUrl status'
+      })
     messageThread.length === 0
       ? res.status(404).json({
           message: `Private messages thread with ID ${privateChatId} not found.`

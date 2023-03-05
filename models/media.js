@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const media = new Schema(
   {
-    userId: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
+    sender: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
     privateChatId: {
       type: mongoose.Types.ObjectId,
       ref: 'PrivateChat'
@@ -19,7 +19,12 @@ const media = new Schema(
       default: 'image'
     },
     fileSize: { type: String },
-    fileUrl: { type: String, required: true }
+    fileUrl: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['sent', 'read', 'failed'],
+      default: 'sent'
+    }
   },
   {
     timestamps: true,

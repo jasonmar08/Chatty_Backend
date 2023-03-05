@@ -1,11 +1,16 @@
+import mongoose from 'mongoose'
 import Media from '../models/media.js'
+import PrivateChat from '../models/privateChat.js'
+import GroupChat from '../models/groupChat.js'
 
 export const createMediaMessage = async (req, res) => {
   try {
     const { userId, privateChatId, groupChatId } = req.params
     const { fileName, fileType, fileSize, fileUrl } = req.body
+    const existingThread = await PrivateChat.findOne({ _id: privateChatId })
+
     const mediaMessage = new Media({
-      userId,
+      sender: userId,
       privateChatId,
       groupChatId,
       fileName,
@@ -14,6 +19,8 @@ export const createMediaMessage = async (req, res) => {
       fileUrl
     })
     await mediaMessage.save()
+    existingThread['media'].push(mongoose.Types.ObjectId(mediaMessage._id))
+    await existingThread.save()
     res.status(200).json({
       mediaMessage,
       message: `Successfully created ${fileType} media message by user ${userId}.`
@@ -43,7 +50,10 @@ export const getMediaByChatId = async (req, res) => {
   try {
     const { privateChatId, groupChatId } = req.params
     if (privateChatId) {
-      const mediaMessages = await Media.find({ privateChatId })
+      const mediaMessages = await Media.find({ privateChatId }).populate({
+        path: 'sender',
+        select: 'email'
+      })
       mediaMessages.length === 0
         ? res.status(404).json({
             message: `No media messages found for private chat with ID ${privateChatId}.`
@@ -95,28 +105,51 @@ export const getChatMediaByFileType = async (req, res) => {
     const { fileType } = req.query
 
     if (privateChatId) {
-      const mediaMessages = await Media.find({ privateChatId, fileType })
-      !mediaMessages || mediaMessages.length === 0
-        ? res.status(404).json({
-            message: `No ${fileType} media found for private chat with ID ${privateChatId}.`
-          })
-        : res.status(200).json({
-            mediaMessages,
-            message: `Successfully retrieved ${fileType} media messages for private chat with ID ${privateChatId}.`
-          })
+      const mediaMessages = await Media.find({ privateChatId })
+      const filteredMedia = mediaMessages.filter(
+        (message) => message.fileType === fileType
+      )
+
+      if (!filteredMedia || filteredMedia.length === 0) {
+        return res.status(404).json({
+          message: `No ${fileType} media found for private chat with ID ${privateChatId}.`
+        })
+      }
+      return res.status(200).json({
+        filteredMedia,
+        message: `Successfully retrieved ${fileType} media messages for private chat with ID ${privateChatId}.`
+      })
     }
 
     if (groupChatId) {
       const mediaMessages = await Media.find({ groupChatId, fileType })
-      !mediaMessages || mediaMessages.length === 0
-        ? res.status(404).json({
-            message: `No ${fileType} media found for group chat with ID ${groupChatId}.`
-          })
-        : res.status(200).json({
-            mediaMessages,
-            message: `Successfully retrieved ${fileType} media messages for group chat with ID ${groupChatId}.`
-          })
+      const filteredMedia = mediaMessages.filter(
+        (message) => message.fileType === fileType
+      )
+
+      if (!filteredMedia || filteredMedia.length === 0) {
+        return res.status(404).json({
+          message: `No ${fileType} media found for group chat with ID ${groupChatId}.`
+        })
+      }
+      return res.status(200).json({
+        filteredMedia,
+        message: `Successfully retrieved ${fileType} media messages for group chat with ID ${groupChatId}.`
+      })
     }
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const deleteMediaById = async (req, res) => {
+  try {
+    const { mediaId } = req.params
+    const deletedMedia = await Media.findByIdAndDelete(mediaId)
+    res.status(200).json({
+      message: `Successfully deleted media ${deletedMedia} with ID ${mediaId}`
+    })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
