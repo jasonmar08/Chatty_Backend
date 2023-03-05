@@ -24,11 +24,16 @@ export const createMessage = async (req, res) => {
 
     if (!existingMessageThread) {
       const newPrivateThread = new PrivateChat({
-        participants: [userId, recipientId]
-      })
-      newPrivateThread['messages'].push({
-        text: text,
-        sender: mongoose.Types.ObjectId(userId)
+        participants: [
+          mongoose.Types.ObjectId(userId),
+          mongoose.Types.ObjectId(recipientId)
+        ],
+        messages: [
+          {
+            text: text,
+            sender: mongoose.Types.ObjectId(userId)
+          }
+        ]
       })
       await newPrivateThread.save()
       return res.status(201).json({

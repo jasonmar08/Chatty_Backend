@@ -6,11 +6,7 @@ const privateChat = new Schema(
     participants: [
       {
         type: mongoose.Types.ObjectId,
-        ref: 'User',
-        validate: {
-          validator: (participants) => participants.length === 2,
-          message: 'A private chat must have exactly 2 participants.'
-        }
+        ref: 'User'
       }
     ],
     typingUsers: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
@@ -37,6 +33,15 @@ const privateChat = new Schema(
   },
   { timestamps: true }
 )
+
+privateChat.pre('save', function (next) {
+  if (this.participants.length !== 2) {
+    const error = new Error('A private chat must have exactly 2 participants.')
+    next(error)
+  } else {
+    next()
+  }
+})
 
 privateChat.index({ participants: 1 })
 
