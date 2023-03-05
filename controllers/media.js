@@ -148,7 +148,7 @@ export const deleteMediaById = async (req, res) => {
     const { mediaId } = req.params
     const deletedMedia = await Media.findByIdAndDelete(mediaId)
     res.status(200).json({
-      message: `Successfully deleted media ${deletedMedia} with ID ${mediaId}`
+      message: `Successfully deleted media with ID ${mediaId}`
     })
   } catch (error) {
     console.error(error.message)
