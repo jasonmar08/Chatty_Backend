@@ -80,10 +80,11 @@ export const getAllMessageThreads = async (req, res) => {
 export const getAllMessages = async (req, res) => {
   try {
     const { userId, privateChatId } = req.params
-    const messageThread = await PrivateChat.find({ privateChatId }).populate({
-      path: 'messages',
-      select: 'text timestamp status'
-    })
+    const messageThread = await PrivateChat.find({
+      _id: privateChatId
+    }).select(
+      'messages.text messages.sender messages.timestamp messages.status'
+    )
 
     messageThread.length === 0
       ? res.status(404).json({
