@@ -10,7 +10,7 @@ export const createGroupChat = async (req, res) => {
       groupDescription,
       groupPhoto,
       participants: [
-        { _id: mongoose.Types.ObjectId(userId), isAdmin: true },
+        { participant: mongoose.Types.ObjectId(userId), isAdmin: true },
         ...participants
       ],
       creator: mongoose.Types.ObjectId(userId)
@@ -45,12 +45,15 @@ export const createGroupChatMessage = async (req, res) => {
   }
 }
 
-export const getAllGroupChatThreads = async (req, res) => {
+export const getAllGroupChatsByUserId = async (req, res) => {
   try {
     const { userId } = req.params
-    const groupChatThreads = await find({
-      participants: { $elemMatch: { $eq: userId } }
+    const groupChatThreads = await GroupChat.find({
+      'participants.participant': userId
     })
+      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'creator', select: 'email' })
+      .populate({ path: 'messages.sender', select: 'email' })
 
     if (groupChatThreads.length === 0) {
       return res.status(404).json({
@@ -67,6 +70,28 @@ export const getAllGroupChatThreads = async (req, res) => {
   }
 }
 
+export const getGroupChatByChatId = async (req, res) => {
+  try {
+    const { groupChatId } = req.params
+    const groupChatThread = await GroupChat.findOne({ _id: groupChatId })
+      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'creator', select: 'email' })
+      .populate({ path: 'messages.sender', select: 'email' })
+
+    !groupChatThread
+      ? res
+          .status(404)
+          .json({ message: `No group chat found with ID ${groupChatId}.` })
+      : res.status(200).json({
+          groupChatThread,
+          message: `Successfully retrieve group chat thread with ID ${groupChatId}.`
+        })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
 export const updateGroupChatInfo = async (req, res) => {
   try {
     const { userId, groupChatId } = req.params
@@ -75,11 +100,19 @@ export const updateGroupChatInfo = async (req, res) => {
     )
 
     const user = groupChat.participants.find(
-      (user) => user._id.toString() === userId
+      (participant) => participant.participant._id.toString() === userId
     )
 
     if (user && user.isAdmin === true) {
-      const updatedData = Object.assign({}, req.body)
+      const updatedData = {
+        ...req.body,
+        participants: [
+          ...(groupChat.participants || []),
+          ...(req.body.participants || []).map((id) => ({
+            participant: mongoose.Types.ObjectId(id)
+          }))
+        ]
+      }
       const updatedGroupChat = await GroupChat.findByIdAndUpdate(
         { _id: groupChatId },
         updatedData,
@@ -109,42 +142,34 @@ export const deleteGroupChatThread = async (req, res) => {
     const { userId, groupChatId } = req.params
     const groupChat = await GroupChat.findOne({ _id: groupChatId })
     if (!groupChat)
-      return res
-        .status(404)
-        .json({
-          message: `Could not find group chat thread with ID ${groupChatId}.`
-        })
+      return res.status(404).json({
+        message: `Could not find group chat thread with ID ${groupChatId}.`
+      })
 
     const user = groupChat.participants.find(
-      (user) => user._id.toString() === userId
+      (participant) => participant.participant._id.toString() === userId
     )
     if (!user)
       return res
         .status(403)
         .json({ message: `User is not a participant of the group chat.` })
 
-    if (user._id !== groupChat.creator)
-      return res
-        .status(403)
-        .json({
-          message: `User is not the creator of the group chat and cannot delete the thread.`
-        })
+    if (user.participant._id.toString() !== groupChat.creator._id.toString())
+      return res.status(403).json({
+        message: `User is not the creator of the group chat and cannot delete the thread.`
+      })
 
     const deletedGroupChatThread = await GroupChat.findByIdAndDelete(
       groupChatId
     )
     if (!deletedGroupChatThread)
-      return res
-        .status(404)
-        .json({
-          message: `Could not delete group chat thread with ID ${groupChatId}.`
-        })
-
-    return res
-      .status(200)
-      .json({
-        message: `Successfully deleted group chat thread with ID ${groupChatId}.`
+      return res.status(404).json({
+        message: `Could not delete group chat thread with ID ${groupChatId}.`
       })
+
+    return res.status(200).json({
+      message: `Successfully deleted group chat thread with ID ${groupChatId}.`
+    })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
@@ -168,6 +193,36 @@ export const leaveGroupChat = async (req, res) => {
     res.status(200).json({
       message: `User with ID ${userId} successfully left the group chat ${groupChatId}.`
     })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const GetAllGChats = async (req, res) => {
+  try {
+    const allGChats = await GroupChat.find({})
+      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'creator', select: 'email' })
+    !allGChats
+      ? res.status(404).json({ message: 'No group chats found.' })
+      : res.status(200).json({
+          allGChats,
+          message:
+            'Successfully retrieved all group chat threads from database.'
+        })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const deleteGChat = async (req, res) => {
+  try {
+    const { chatId } = req.params
+    const deletedChat = await GroupChat.findByIdAndDelete(chatId)
+
+    res.status(200).json({ message: 'deleted' })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })

@@ -8,8 +8,7 @@ const groupChat = new Schema(
     groupPhoto: { type: String },
     participants: [
       {
-        type: mongoose.Types.ObjectId,
-        ref: 'User',
+        participant: { type: mongoose.Types.ObjectId, ref: 'User' },
         isAdmin: { type: Boolean, default: false, required: true }
       }
     ],

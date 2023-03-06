@@ -10,7 +10,7 @@ export const register = async (req, res) => {
     let { firstName, lastName, email, password, phoneNumber, profilePhoto } =
       req.body
     let passwordDigest = await hashPassword(password)
-    const existingUser = await User.find({ email })
+    const existingUser = await User.findOne({ email })
 
     if (existingUser) {
       return res.status(299).json({

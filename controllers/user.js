@@ -4,7 +4,7 @@ import GroupChat from '../models/groupChat.js'
 
 export const getAllUsers = async (req, res) => {
   try {
-    const allUsers = await User.find({}).select('firstName, lastName, email')
+    const allUsers = await User.find({}).select('firstName lastName email')
     res
       .status(200)
       .json(
@@ -84,11 +84,9 @@ export const getAllChatThreads = async (req, res) => {
     await filterChatThreads(allThreads)
 
     allThreads.length === 0
-      ? res
-          .status(404)
-          .json({
-            message: `No conversation threads found for user with ID ${userId}.`
-          })
+      ? res.status(404).json({
+          message: `No conversation threads found for user with ID ${userId}.`
+        })
       : res.status(200).json({
           allThreads,
           message: `Successfully retrieved all chat threads for user with ID ${userId}.`

@@ -2,8 +2,11 @@ import { Router } from 'express'
 import {
   createGroupChat,
   createGroupChatMessage,
+  deleteGChat,
   deleteGroupChatThread,
-  getAllGroupChatThreads,
+  GetAllGChats,
+  getAllGroupChatsByUserId,
+  getGroupChatByChatId,
   leaveGroupChat,
   updateGroupChatInfo
 } from '../controllers/groupChat.js'
@@ -15,6 +18,7 @@ import {
 import { stripToken, verifyToken } from '../middleware/jwtAuth.js'
 const router = Router()
 
+router.get('/groupChats', stripToken, verifyToken, GetAllGChats)
 router.post('/:userId/groupChats', stripToken, verifyToken, createGroupChat)
 router.post(
   '/:userId/groupChats/:groupChatId',
@@ -26,7 +30,13 @@ router.get(
   '/:userId/groupChats',
   stripToken,
   verifyToken,
-  getAllGroupChatThreads
+  getAllGroupChatsByUserId
+)
+router.get(
+  '/groupChats/:groupChatId',
+  stripToken,
+  verifyToken,
+  getGroupChatByChatId
 )
 router.put(
   '/:userId/groupChats/:groupChatId',
@@ -41,6 +51,7 @@ router.delete(
   deleteGroupChatThread
 )
 router.put('/:userId/:groupChatId', stripToken, verifyToken, leaveGroupChat)
+router.delete('/groupChats/:chatId', deleteGChat)
 
 // Media Messages
 router.post(
