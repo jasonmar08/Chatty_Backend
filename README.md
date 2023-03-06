@@ -9,3 +9,8 @@
 #### 🗣 Development in progress... Final product coming soon! 🥳
 
 ---
+
+## Future Updates
+
+- [ ] Implement built-in video/audio calling
+- [ ] Implement websocket for real-time messaging
