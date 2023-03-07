@@ -209,6 +209,7 @@ export const GetAllGChats = async (req, res) => {
     const allGChats = await GroupChat.find({})
       .populate({ path: 'participants.participant', select: 'email' })
       .populate({ path: 'creator', select: 'email' })
+      .populate({ path: 'media', select: 'sender fileName fileType fileUrl' })
     !allGChats
       ? res.status(404).json({ message: 'No group chats found.' })
       : res.status(200).json({
