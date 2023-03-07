@@ -5,7 +5,7 @@ import {
   deleteGChat,
   deleteGroupChatThread,
   deleteMessage,
-  GetAllGChats,
+  getAllGChats,
   getAllGroupChatsByUserId,
   getGroupChatByChatId,
   leaveGroupChat,
@@ -19,7 +19,7 @@ import {
 import { stripToken, verifyToken } from '../middleware/jwtAuth.js'
 const router = Router()
 
-router.get('/groupChats', stripToken, verifyToken, GetAllGChats)
+router.get('/groupChats', stripToken, verifyToken, getAllGChats)
 router.post('/:userId/groupChats', stripToken, verifyToken, createGroupChat)
 router.post(
   '/:userId/groupChats/:groupChatId',
