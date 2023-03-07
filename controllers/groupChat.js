@@ -76,6 +76,11 @@ export const getGroupChatByChatId = async (req, res) => {
     const groupChatThread = await GroupChat.findOne({ _id: groupChatId })
       .populate({ path: 'participants.participant', select: 'email' })
       .populate({ path: 'creator', select: 'email' })
+      .populate({
+        path: 'media',
+        select: 'status fileName fileType fileUrl',
+        populate: { path: 'sender', select: 'email' }
+      })
       .populate({ path: 'messages.sender', select: 'email' })
 
     !groupChatThread
@@ -223,6 +228,24 @@ export const deleteGChat = async (req, res) => {
     const deletedChat = await GroupChat.findByIdAndDelete(chatId)
 
     res.status(200).json({ message: 'deleted' })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { groupChatId } = req.params
+    const { messageId } = req.body
+    const deletedMessage = await GroupChat.findByIdAndUpdate(
+      { _id: groupChatId },
+      { $pull: { messages: { _id: messageId } } },
+      { new: true }
+    )
+    res
+      .status(200)
+      .json({ message: `Successfully deleted message with ID ${messageId}.` })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })

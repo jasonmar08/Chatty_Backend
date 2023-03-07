@@ -4,6 +4,7 @@ import {
   createGroupChatMessage,
   deleteGChat,
   deleteGroupChatThread,
+  deleteMessage,
   GetAllGChats,
   getAllGroupChatsByUserId,
   getGroupChatByChatId,
@@ -52,6 +53,7 @@ router.delete(
 )
 router.put('/:userId/:groupChatId', stripToken, verifyToken, leaveGroupChat)
 router.delete('/groupChats/:chatId', deleteGChat)
+router.delete('/groupChats/:groupChatId/messages', deleteMessage)
 
 // Media Messages
 router.post(

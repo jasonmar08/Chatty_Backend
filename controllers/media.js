@@ -7,7 +7,13 @@ export const createMediaMessage = async (req, res) => {
   try {
     const { userId, privateChatId, groupChatId } = req.params
     const { fileName, fileType, fileSize, fileUrl } = req.body
-    const existingThread = await PrivateChat.findOne({ _id: privateChatId })
+    let existingThread
+
+    if (privateChatId) {
+      existingThread = await PrivateChat.findOne({ _id: privateChatId })
+    } else {
+      existingThread = await GroupChat.findOne({ _id: groupChatId })
+    }
 
     const mediaMessage = new Media({
       sender: userId,
@@ -66,6 +72,7 @@ export const getMediaByChatId = async (req, res) => {
 
     if (groupChatId) {
       const mediaMessages = await Media.find({ groupChatId })
+      console.log('GROUP CHAT MEDIA:', mediaMessages)
       mediaMessages.length === 0
         ? res.status(404).json({
             message: `No media messages found for group chat with ID ${groupChatId}.`
