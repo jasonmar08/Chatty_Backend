@@ -7,8 +7,8 @@ import {
 import {
   createMessage,
   deleteMessageThread,
-  getAllMessages,
-  getAllMessageThreads
+  getAllMessageThreads,
+  getAllPrivateMessages
 } from '../controllers/privateChat.js'
 import { stripToken, verifyToken } from '../middleware/jwtAuth.js'
 const router = Router()
@@ -24,7 +24,7 @@ router.get(
   '/:userId/privateChats/:privateChatId',
   stripToken,
   verifyToken,
-  getAllMessages
+  getAllPrivateMessages
 )
 router.delete(
   '/:userId/privateChats/:privateChatId',

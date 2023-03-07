@@ -87,7 +87,7 @@ export const getAllMessageThreads = async (req, res) => {
   }
 }
 
-export const getAllMessages = async (req, res) => {
+export const getAllPrivateMessages = async (req, res) => {
   try {
     const { userId, privateChatId } = req.params
     const messageThread = await PrivateChat.find({

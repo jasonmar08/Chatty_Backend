@@ -97,6 +97,35 @@ export const getGroupChatByChatId = async (req, res) => {
   }
 }
 
+export const getAllGroupMessages = async (req, res) => {
+  try {
+    const { userId, groupChatId } = req.params
+    const messageThread = await GroupChat.find({
+      _id: groupChatId
+    })
+      .select(
+        'messages.text messages.sender messages.timestamp messages.status'
+      )
+      .populate({ path: 'messages.sender', select: 'email' })
+      .populate({
+        path: 'media',
+        populate: { path: 'sender', select: 'email' },
+        select: 'fileName fileType fileUrl status'
+      })
+    messageThread.length === 0
+      ? res.status(404).json({
+          message: `Group messages thread with ID ${groupChatId} not found.`
+        })
+      : res.status(200).json({
+          messageThread,
+          message: `Successfully retrieved all messages for user with ID ${userId} in group chat thread ${groupChatId}.`
+        })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
 export const updateGroupChatInfo = async (req, res) => {
   try {
     const { userId, groupChatId } = req.params

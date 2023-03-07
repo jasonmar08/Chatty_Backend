@@ -80,8 +80,9 @@ export const getAllChatThreads = async (req, res) => {
       participants: { $elemMatch: { $eq: userId } }
     })
 
-    const allThreads = privateThreads.concat(groupThreads)
-    await filterChatThreads(allThreads)
+    const allThreads = await filterChatThreads(
+      privateThreads.concat(groupThreads)
+    )
 
     allThreads.length === 0
       ? res.status(404).json({
@@ -98,7 +99,7 @@ export const getAllChatThreads = async (req, res) => {
 }
 
 export const filterChatThreads = async (threads) => {
-  threads.sort((a, b) => {
+  return threads.sort((a, b) => {
     return new Date(b.lastActive) - new Date(a.lastActive)
   })
 }

@@ -7,6 +7,7 @@ import {
   deleteMessage,
   getAllGChats,
   getAllGroupChatsByUserId,
+  getAllGroupMessages,
   getGroupChatByChatId,
   leaveGroupChat,
   updateGroupChatInfo
@@ -32,6 +33,12 @@ router.get(
   stripToken,
   verifyToken,
   getAllGroupChatsByUserId
+)
+router.get(
+  '/:userId/groupChats/:groupChatId',
+  stripToken,
+  verifyToken,
+  getAllGroupMessages
 )
 router.get(
   '/groupChats/:groupChatId',
