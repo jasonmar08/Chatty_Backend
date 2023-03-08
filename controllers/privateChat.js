@@ -100,14 +100,24 @@ export const getAllPrivateMessages = async (req, res) => {
       .populate({
         path: 'media',
         populate: { path: 'sender', select: 'email' },
-        select: 'fileName fileType fileUrl status'
+        select: 'fileName fileType fileUrl status createdAt'
       })
-    messageThread.length === 0
+
+    const combinedMessages = messageThread[0].messages.concat(
+      messageThread[0].media
+    )
+    combinedMessages.sort((a, b) => {
+      const aDate = a.createdAt || a.timestamp
+      const bDate = b.createdAt || b.timestamp
+      return new Date(aDate) - new Date(bDate)
+    })
+
+    combinedMessages.length === 0
       ? res.status(404).json({
           message: `Private messages thread with ID ${privateChatId} not found.`
         })
       : res.status(200).json({
-          messageThread,
+          combinedMessages,
           message: `Successfully retrieved all messages for user with ID ${userId} in message thread ${privateChatId}.`
         })
   } catch (error) {
