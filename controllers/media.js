@@ -91,7 +91,10 @@ export const getMediaByChatId = async (req, res) => {
 export const getMediaByUserId = async (req, res) => {
   try {
     const { userId } = req.params
-    const mediaMessages = await Media.find({ sender: userId })
+    const mediaMessages = await Media.find({ sender: userId }).populate({
+      path: 'sender',
+      select: 'email'
+    })
     mediaMessages.length === 0
       ? res.status(404).json({
           message: `No media messages found for user with ID ${userId}.`
