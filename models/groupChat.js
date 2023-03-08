@@ -38,6 +38,11 @@ const groupChat = new Schema(
   { timestamps: true }
 )
 
+groupChat.pre('save', function (next) {
+  this.lastActive = new Date()
+  next()
+})
+
 groupChat.index({ groupName: 1, 'participants._id': 1 }, { unique: true })
 
 export default mongoose.model('GroupChat', groupChat)
