@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import User from '../models/user.js'
 import PrivateChat from '../models/privateChat.js'
 import GroupChat from '../models/groupChat.js'
@@ -74,32 +75,31 @@ export const getAllChatThreads = async (req, res) => {
   try {
     const { userId } = req.params
     const privateThreads = await PrivateChat.find({
-      participants: { $elemMatch: { $eq: userId } }
+      participants: { $elemMatch: { $eq: mongoose.Types.ObjectId(userId) } }
     })
+      .select('_id participants lastActive')
+      .populate({ path: 'participants', select: 'email' })
     const groupThreads = await GroupChat.find({
-      participants: { $elemMatch: { $eq: userId } }
+      participants: { $elemMatch: { $eq: mongoose.Types.ObjectId(userId) } }
+    })
+      .select('_id participants lastActive')
+      .populate({ path: 'participants.participant', select: 'email' })
+
+    const combinedThreads = privateThreads.concat(groupThreads)
+    combinedThreads.sort((a, b) => {
+      return new Date(b.lastActive) - new Date(a.lastActive)
     })
 
-    const allThreads = await filterChatThreads(
-      privateThreads.concat(groupThreads)
-    )
-
-    allThreads.length === 0
+    combinedThreads.length === 0
       ? res.status(404).json({
           message: `No conversation threads found for user with ID ${userId}.`
         })
       : res.status(200).json({
-          allThreads,
+          combinedThreads,
           message: `Successfully retrieved all chat threads for user with ID ${userId}.`
         })
   } catch (error) {
     console.error(error.message)
     res.status(500).json({ error: error.message })
   }
-}
-
-export const filterChatThreads = async (threads) => {
-  return threads.sort((a, b) => {
-    return new Date(b.lastActive) - new Date(a.lastActive)
-  })
 }
