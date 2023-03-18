@@ -5,7 +5,10 @@ const groupChat = new Schema(
   {
     groupName: { type: String, required: true },
     groupDescription: { type: String, default: 'Group' },
-    groupPhoto: { type: String },
+    groupPhoto: {
+      type: String,
+      default: 'https://i.postimg.cc/L8jC1rSp/default-group-avatar.png'
+    },
     participants: [
       {
         participant: { type: mongoose.Types.ObjectId, ref: 'User' },

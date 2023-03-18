@@ -16,7 +16,10 @@ const user = new Schema(
       type: String,
       match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$|^\d{10}$/
     },
-    profilePhoto: { type: String },
+    profilePhoto: {
+      type: String,
+      default: 'https://i.postimg.cc/sx08TSHC/default-avatar.png'
+    },
     verified: { type: Boolean, default: false }
   },
   { timestamps: true }
